@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MY PANEL FREE FIRE</title>
+  <style>
+    :root{
+      --gold: linear-gradient(90deg,#d4af37,#f6d86b);
+      --gold-solid: #d4af37;
+    }
+    html,body{
+      height:100%;
+      margin:0;
+      font-family:"Segoe UI",Tahoma,Arial,sans-serif;
+      background:#000;
+      color:#fff;
+    }
+
+    canvas#triangles{
+      position:fixed;
+      inset:0;
+      width:100%;
+      height:100%;
+      display:block;
+      z-index:0;
+    }
+
+    .search-container{
+      position:fixed;
+      top:18px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:3;
+      width:min(560px,92%);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+    .search-input{
+      width:100%;
+      padding:12px 18px;
+      border-radius:28px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.06);
+      color:#fff;
+      outline:none;
+      font-size:15px;
+      backdrop-filter: blur(6px);
+    }
+
+    .buttons{
+      position:fixed;
+      right:28px;
+      top:50%;
+      transform:translateY(-50%);
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      z-index:3;
+    }
+    .btn{
+      min-width:190px;
+      padding:12px 18px;
+      border-radius:12px;
+      border:1px solid rgba(255,215,0,0.15);
+      background:linear-gradient(180deg,rgba(212,175,55,0.95),rgba(246,216,107,0.95));
+      color:#111;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow:0 8px 22px rgba(210,160,40,0.18);
+      transition:all .18s ease;
+    }
+    .btn:hover{transform:translateX(-6px) scale(1.02);}
+
+    .videos-wrapper{
+      position:relative;
+      z-index:2;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+    .videos{
+      display:flex;
+      gap:28px;
+      align-items:center;
+      justify-content:center;
+      flex-wrap:wrap;
+      padding:20px;
+      background:rgba(0,0,0,0.12);
+      border-radius:16px;
+      backdrop-filter:blur(6px);
+    }
+    .videos iframe{
+      width:400px;
+      height:225px;
+      border-radius:10px;
+      border:0;
+      box-shadow:0 6px 18px rgba(0,0,0,0.6);
+    }
+
+    @media(max-width:760px){
+      .videos{flex-direction:column;}
+      .videos iframe{width:320px;height:180px;}
+    }
+  </style>
+</head>
+<body>
+  <canvas id="triangles"></canvas>
+
+  <div class="search-container">
+    <input class="search-input" type="search" placeholder="🔍 ابحث هنا..." />
+  </div>
+
+  <div class="buttons">
+    <button class="btn" id="btn-panel">MY PANEL FREE FIRE</button>
+    <button class="btn" id="btn-like">LIKE VIDEO (<span id="like-count">0</span>)</button>
+    <button class="btn" id="btn-help">HELP</button>
+    <button class="btn" id="btn-youtube">GO TO MY YOUTUBE</button>
+  </div>
+
+  <div class="videos-wrapper">
+    <div class="videos">
+      <iframe src="https://www.youtube.com/embed/Cq8I7-nlnkc" allowfullscreen></iframe>
+      <iframe src="https://www.youtube.com/embed/wkiQ2iSbKXc" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <script>
+    const likeCountEl = document.getElementById('like-count');
+    let likes = 0;
+    document.getElementById('btn-like').addEventListener('click', () => {
+      likes++;
+      likeCountEl.textContent = likes;
+    });
+
+    document.getElementById('btn-help').addEventListener('click', () => {
+      alert('للمساعدة تواصل معي أو ضع سؤالاً هنا.');
+    });
+
+    document.getElementById('btn-panel').addEventListener('click', () => {
+      // هنا يمكنك وضع رابط ملف EXE بعد رفعه مثلاً:
+      // window.open('https://www.mediafire.com/file/yourfile.exe','_blank');
+      alert('ضع رابط ملفك هنا بعد رفعه (EXE).');
+    });
+
+    document.getElementById('btn-youtube').addEventListener('click', () => {
+      window.open('https://www.youtube.com/@darkytv12', '_blank');
+    });
+
+    // مثلثات متحركة
+    const canvas = document.getElementById('triangles');
+    const ctx = canvas.getContext('2d');
+    let w = canvas.width = innerWidth;
+    let h = canvas.height = innerHeight;
+    const T = [];
+
+    function rand(min, max) { return Math.random() * (max - min) + min; }
+
+    for (let i = 0; i < 70; i++) {
+      T.push({
+        x: rand(0, w),
+        y: rand(0, h),
+        s: rand(4, 14),
+        vx: rand(-0.3, 0.3),
+        vy: rand(-0.3, 0.3),
+        r: rand(0, Math.PI * 2),
+        c: `rgba(255,${Math.round(rand(40,80))},${Math.round(rand(40,60))},${rand(0.6,0.9)})`
+      });
+    }
+
+    function draw() {
+      ctx.clearRect(0,0,w,h);
+      for (const t of T) {
+        ctx.save();
+        ctx.translate(t.x, t.y);
+        ctx.rotate(t.r);
+        ctx.beginPath();
+        const s = t.s;
+        ctx.moveTo(0, -s);
+        ctx.lineTo(-s, s);
+        ctx.lineTo(s, s);
+        ctx.closePath();
+        ctx.fillStyle = t.c;
+        ctx.fill();
+        ctx.restore();
+        t.x += t.vx;
+        t.y += t.vy;
+        if (t.x < -30) t.x = w + 30;
+        if (t.x > w + 30) t.x = -30;
+        if (t.y < -30) t.y = h + 30;
+        if (t.y > h + 30) t.y = -30;
+      }
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    window.addEventListener('resize', () => {
+      w = canvas.width = innerWidth;
+      h = canvas.height = innerHeight;
+    });
+  </script>
+</body>
+</html>
